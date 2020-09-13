@@ -20,6 +20,42 @@ size_t playerTurnCounter = 0;
 size_t chips = 1000;
 size_t limitingBid = 999;
 
+void makeBestMove()
+{
+    using namespace std;
+    size_t taken = 1;
+
+    // punish from enemy blunders and win
+    if( limitingBid >= chips )
+    { 
+        taken = chips;
+        limitingBid = taken*2;
+        chips = 0;
+        cout << "player " << playerTurnCounter << " took " << taken << " amount of chips, ";
+        cout << "limitingBid was valued at " << limitingBid << " , remaining pot is valued at " << chips << endl;
+    }
+    // make largest possible non-losing bet 
+    else
+    {
+		size_t k = limitingBid;
+		
+        //k = (size_t)(chips / 3);
+        size_t proposal = chips / 3;
+        if (proposal * 3 == chips) proposal--;
+
+		if ( proposal <= limitingBid )
+		{
+            k = proposal;
+		}
+
+		taken = k;
+		limitingBid = taken * 2;
+		chips -= taken;
+		cout << "player " << playerTurnCounter << " took " << taken << " amount of chips, ";
+		cout << "limitingBid was valued at " << limitingBid << " , remaining pot is valued at " << chips << endl;
+    }
+
+}
 
 void makeMove()
 {
@@ -38,14 +74,14 @@ void makeMove()
     else
     {
 
-        for (size_t proposal = limitingBid;; proposal--)
+        for (size_t proposal = limitingBid; proposal > 0; proposal--)
         {
             if(proposal >= chips)
             {
                 taken = chips;
                 limitingBid = chips;
                 chips = 0;
-                cout << "player " << playerTurnCounter << " took " << limitingBid << " amount of chips, ";
+                cout << "player " << playerTurnCounter << " took " << taken << " amount of chips, ";
                 cout << "limitingBid was valued at " << limitingBid << " , remaining pot is valued at " << chips << endl;
 
                 return;
@@ -62,6 +98,8 @@ void makeMove()
                 return;
             }
         }
+
+        throw std::logic_error("error in ai move algorithm, in KnuthChipGame!");
     }
 }
 
@@ -75,7 +113,7 @@ int main()
     {
         if (playerTurnCounter == 0)
         {
-            makeMove();
+            makeBestMove();
             playerTurnCounter++;
         }
         else
